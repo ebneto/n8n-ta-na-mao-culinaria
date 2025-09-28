@@ -1,0 +1,305 @@
+{
+  "name": "Ta-na-mao",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        176,
+        176
+      ],
+      "id": "64effd72-756b-41de-8a35-b5ea84b1b6f2",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9dUdaLBCN99JK8Td",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "productOperation": "sendMessage",
+        "recipient": "+5511976402091",
+        "message": "={{ $json.output }}"
+      },
+      "type": "n8n-nodes-whatsable.whatsAble",
+      "typeVersion": 1,
+      "position": [
+        736,
+        0
+      ],
+      "id": "6efe9300-f508-4736-a165-fd18ab3e07c3",
+      "name": "Send whatsapp message",
+      "credentials": {
+        "whatsAbleApi": {
+          "id": "4IKam1EsZ67E8nSe",
+          "name": "WhatsAble account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6ec2f315-21e0-44ba-8aa2-84efc257c4eb",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -528,
+        0
+      ],
+      "id": "c8f6cdc7-609c-4ac4-ac24-c8bc9d5fc60d",
+      "name": "Webhook",
+      "webhookId": "6ec2f315-21e0-44ba-8aa2-84efc257c4eb"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        496,
+        0
+      ],
+      "id": "f3442bb3-78cf-4e91-a668-e132fa6bab42",
+      "name": "Respond to Webhook",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9114ddb-e15d-4e18-ab6a-9c6e661fff96",
+              "name": "=promptGenAI",
+              "value": "=Mande outra receita, por favor. Apenas o nome do prato e a receita, em no máximo 2 parágrafos e 1000 caracteres.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        -80
+      ],
+      "id": "ead769f4-9112-4e25-990e-e046056eb130",
+      "name": "Outra Receita"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39f7a7aa-4e7e-4a50-ba3e-69987a96dd20",
+              "name": "promptGenAI",
+              "value": "=Você é um chefe de cozinha especializado na cozinha brasileira. Você receberá uma lista com alguns ingredientes, e vai devolver uma receita simplificada que utilize principalmente os ingredientes passados, com no máximo 1000 caracteres em 2 parágrafos. Não retorne nada além do nome do prato e da receita. Ingredientes: {{ $json.body.ingredients }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        112
+      ],
+      "id": "638b33bd-8225-4b7b-8e7c-c90202dde4fd",
+      "name": "Lista de ingredientes"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.promptGenAI }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        0
+      ],
+      "id": "c476bfda-12ca-4194-bc21-079eb8b9e320",
+      "name": "Gerador de Receita",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5ed1eb17-2a73-4416-a020-a05d29a28865",
+              "leftValue": "={{ $json.body.ingredients }}",
+              "rightValue": "outra",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "19098a65-b904-40f0-9564-af382220dab3",
+      "name": "Condicional"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "1000"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        272,
+        192
+      ],
+      "id": "159d9f0f-9575-4a1b-bf78-dbf7961a7069",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gerador de Receita",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Condicional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outra Receita": {
+      "main": [
+        [
+          {
+            "node": "Gerador de Receita",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lista de ingredientes": {
+      "main": [
+        [
+          {
+            "node": "Gerador de Receita",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerador de Receita": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Condicional": {
+      "main": [
+        [
+          {
+            "node": "Outra Receita",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lista de ingredientes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Gerador de Receita",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "853592d0-0566-43b5-a8f5-730964f9496c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b8ebdec0a4a87211cd118543f41eb9f096c28111c711aeac6b37bddb4b9685bf"
+  },
+  "id": "wJDZTQyaB5qtN1ZX",
+  "tags": [
+    {
+      "createdAt": "2025-09-19T02:58:57.316Z",
+      "updatedAt": "2025-09-19T02:58:57.316Z",
+      "id": "6VwAB2pvOUlDv5L3",
+      "name": "Gimini"
+    },
+    {
+      "createdAt": "2025-09-19T02:59:05.613Z",
+      "updatedAt": "2025-09-19T02:59:05.613Z",
+      "id": "skrE1IlRvj2aurmb",
+      "name": "Lovable"
+    }
+  ]
+}
